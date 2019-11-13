@@ -1,23 +1,29 @@
 use async_std::io;
-use async_std::prelude::*;
 use async_std::task;
-use std::time;
+use std::time::{Duration, SystemTime};
 use surf;
 
 async fn check() -> Result<(), surf::Exception> {
     let url = "https://www.ibm.com/uk-en";
+    let start = SystemTime::now();
     let response = surf::get(url).await?;
-    println!("status = {:?}", response.status());
+    let elapsed = start.elapsed()?;
+    println!(
+        "status = {:?}, start = {:?}, elapsed = {:?}",
+        response.status(),
+        start.duration_since(SystemTime::UNIX_EPOCH)?,
+        elapsed
+    );
 
     Ok(())
 }
 
 fn main() -> io::Result<()> {
-    let delay = time::Duration::from_secs(30);
+    let delay = Duration::from_secs(30);
 
     task::block_on(async {
         loop {
-            task::block_on(check());
+            task::spawn(check());
             task::sleep(delay).await;
         }
     })
