@@ -108,5 +108,5 @@ fn main() -> io::Result<()> {
 
     let mut app = tide::App::with_state(AppState { registry });
     app.at("/metrics").get(dump);
-    app.serve("127.0.0.1:8000")
+    app.serve("0.0.0.0:8000")
 }

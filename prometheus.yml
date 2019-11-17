@@ -26,4 +26,9 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-      - targets: ["localhost:9090", "host.docker.internal:8000"]
+      - targets:
+          [
+            "localhost:9090",
+            "host.docker.internal:8000",
+            "Mikes-Mac-mini.lan:8000",
+          ]
