@@ -1,3 +1,4 @@
+use async_std::future;
 use async_std::io;
 use async_std::task;
 use prometheus::{histogram_opts, register_histogram, Encoder, Histogram, Registry, TextEncoder};
@@ -5,19 +6,49 @@ use std::time::{Duration, SystemTime};
 use surf;
 use tide;
 
-async fn check(request_counter: Histogram) -> Result<(), surf::Exception> {
-    let url = "https://www.ibm.com/uk-en";
-    let start = SystemTime::now();
-    let response = surf::get(url).await?;
-    let elapsed = start.elapsed()?;
-    println!(
-        "status = {:?}, start = {:?}, elapsed = {:?}",
-        response.status(),
-        start.duration_since(SystemTime::UNIX_EPOCH)?,
-        elapsed
-    );
+type GenericError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
-    request_counter.observe(elapsed.as_millis() as f64);
+async fn check(
+    successful_request_histogram: Histogram,
+    failed_request_histogram: Histogram,
+) -> Result<(), GenericError> {
+    let url = "https://www.ibm.com/uk-en";
+    let timeout = Duration::from_millis(1000);
+
+    let start = SystemTime::now();
+    let response = future::timeout(timeout, surf::get(url)).await;
+    let elapsed = start.elapsed()?;
+    match response {
+        Result::Ok(surf_response) => match surf_response {
+            Result::Ok(response) => {
+                println!(
+                    "status = {:?}, start = {:?}, elapsed = {:?}",
+                    response.status(),
+                    start.duration_since(SystemTime::UNIX_EPOCH)?,
+                    elapsed
+                );
+                successful_request_histogram.observe(elapsed.as_millis() as f64);
+            }
+            Result::Err(error) => {
+                println!(
+                    "error = {:?}, start = {:?}, elapsed = {:?}",
+                    error,
+                    start.duration_since(SystemTime::UNIX_EPOCH)?,
+                    elapsed
+                );
+                failed_request_histogram.observe(elapsed.as_millis() as f64);
+            }
+        },
+        Result::Err(error) => {
+            println!(
+                "error = {:?}, start = {:?}, elapsed = {:?}",
+                error,
+                start.duration_since(SystemTime::UNIX_EPOCH)?,
+                elapsed
+            );
+            failed_request_histogram.observe(elapsed.as_millis() as f64);
+        }
+    }
 
     Ok(())
 }
@@ -40,19 +71,31 @@ async fn dump(cx: tide::Context<AppState>) -> tide::EndpointResult<String> {
 
 fn spawn_check(registry: &Registry) {
     let buckets: Vec<f64> = (0..10).map(|i| (i * 100) as f64).collect();
-    let opts = histogram_opts!(
-        "canhaveinternet_request_histogram",
-        "histogram of requests sent",
-        buckets
-    );
-    let request_histogram = register_histogram!(opts).unwrap();
+    let successful_request_histogram = register_histogram!(histogram_opts!(
+        "canhaveinternet_request_succeeded_histogram",
+        "histogram of successful requests sent",
+        buckets.clone()
+    ))
+    .unwrap();
+    let failed_request_histogram = register_histogram!(histogram_opts!(
+        "canhaveinternet_request_failed_histogram",
+        "histogram of failed requests sent",
+        buckets.clone()
+    ))
+    .unwrap();
     registry
-        .register(Box::new(request_histogram.clone()))
+        .register(Box::new(successful_request_histogram.clone()))
+        .unwrap();
+    registry
+        .register(Box::new(failed_request_histogram.clone()))
         .unwrap();
     task::spawn(async move {
         let delay = Duration::from_secs(30);
         loop {
-            task::spawn(check(request_histogram.clone()));
+            task::spawn(check(
+                successful_request_histogram.clone(),
+                failed_request_histogram.clone(),
+            ));
             task::sleep(delay).await;
         }
     });
