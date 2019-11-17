@@ -1,3 +1,4 @@
+use async_std::future;
 use async_std::io;
 use async_std::task;
 use prometheus::{histogram_opts, register_histogram, Encoder, Histogram, Registry, TextEncoder};
@@ -12,19 +13,32 @@ async fn check(
     failed_request_histogram: Histogram,
 ) -> Result<(), GenericError> {
     let url = "https://www.ibm.com/uk-en";
+    let timeout = Duration::from_millis(1000);
+
     let start = SystemTime::now();
-    let response = surf::get(url).await;
+    let response = future::timeout(timeout, surf::get(url)).await;
     let elapsed = start.elapsed()?;
     match response {
-        Result::Ok(response) => {
-            println!(
-                "status = {:?}, start = {:?}, elapsed = {:?}",
-                response.status(),
-                start.duration_since(SystemTime::UNIX_EPOCH)?,
-                elapsed
-            );
-            successful_request_histogram.observe(elapsed.as_millis() as f64);
-        }
+        Result::Ok(surf_response) => match surf_response {
+            Result::Ok(response) => {
+                println!(
+                    "status = {:?}, start = {:?}, elapsed = {:?}",
+                    response.status(),
+                    start.duration_since(SystemTime::UNIX_EPOCH)?,
+                    elapsed
+                );
+                successful_request_histogram.observe(elapsed.as_millis() as f64);
+            }
+            Result::Err(error) => {
+                println!(
+                    "error = {:?}, start = {:?}, elapsed = {:?}",
+                    error,
+                    start.duration_since(SystemTime::UNIX_EPOCH)?,
+                    elapsed
+                );
+                failed_request_histogram.observe(elapsed.as_millis() as f64);
+            }
+        },
         Result::Err(error) => {
             println!(
                 "error = {:?}, start = {:?}, elapsed = {:?}",
