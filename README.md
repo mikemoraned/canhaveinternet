@@ -5,7 +5,7 @@
 
 ## Running Metrics Server
 
-    docker run -p 9090:9090 -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+    docker run -p 9090:9090 -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml -v `pwd`/data:/prometheus prom/prometheus
 
 ## Running Clients
 
