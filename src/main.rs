@@ -12,7 +12,7 @@ async fn check(
     successful_request_histogram: Histogram,
     failed_request_histogram: Histogram,
 ) -> Result<(), GenericError> {
-    let url = "https://www.ibm.com/uk-en";
+    let url = "https://canhaveinternet.houseofmoran.io/";
     let timeout = Duration::from_millis(1000);
 
     let start = SystemTime::now();
