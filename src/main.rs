@@ -13,7 +13,7 @@ async fn check(
     failed_request_histogram: Histogram,
 ) -> Result<(), GenericError> {
     let url = "https://canhaveinternet.houseofmoran.io/";
-    let timeout = Duration::from_millis(1000);
+    let timeout = Duration::from_millis(5000);
 
     let start = SystemTime::now();
     let response = future::timeout(timeout, surf::get(url)).await;
