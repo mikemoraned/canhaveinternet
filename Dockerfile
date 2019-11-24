@@ -22,5 +22,17 @@ COPY ./src ./src
 RUN touch src/main.rs
 RUN cargo build --release
 
-CMD ["/usr/src/app/target/release/canhaveinternet"]
+# minimise down to what's needed to run
+## find and store the libraries used by the app
+RUN ldd target/release/canhaveinternet | awk '{ print $3 }' > libs.txt
+RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
+
+FROM rust:1.39-buster
+## copy across libraries used
+COPY --from=build /usr/src/app/libs.tgz /libs.tgz
+RUN cd / && tar zxvf libs.tgz
+## copy across binary
+COPY --from=build /usr/src/app/target/release/canhaveinternet /canhaveinternet
+CMD ["/canhaveinternet"]
+
 EXPOSE 8000
