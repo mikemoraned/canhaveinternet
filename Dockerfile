@@ -13,10 +13,14 @@ WORKDIR /usr/src/myapp
 COPY . .
 
 RUN cargo build --release
+RUN ldd target/release/canhaveinternet | awk '{ print $3 }' > libs.txt
+RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
 
-# FROM debian:buster
-# COPY --from=build /usr/src/myapp/target/release/canhaveinternet /canhaveinternet
-# CMD ["/canhaveinternet"]
+FROM debian:buster
+COPY --from=build /usr/src/myapp/libs.tgz /libs.tgz
+RUN cd / && tar zxvf libs.tgz
+COPY --from=build /usr/src/myapp/target/release/canhaveinternet /canhaveinternet
+CMD ["/canhaveinternet"]
 
-CMD ["/usr/src/myapp/target/release/canhaveinternet"]
+# CMD ["/usr/src/myapp/target/release/canhaveinternet"]
 EXPOSE 8000
