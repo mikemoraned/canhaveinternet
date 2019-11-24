@@ -27,15 +27,10 @@ RUN cargo build --release
 RUN ldd target/release/canhaveinternet | awk '{ print $3 }' > libs.txt
 RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
 
-FROM debian:buster-slim
-# FROM rust:1.39-buster
+FROM rust:1.39-slim-buster
 ## copy across libraries used
 COPY --from=build /usr/src/app/libs.tgz /libs.tgz
 RUN cd / && tar zxvf libs.tgz
-## copy across ssl setup
-COPY --from=build /etc/ssl/ /etc/ssl/
-COPY --from=build /etc/ca-certificates.conf /etc/ca-certificates.conf  
-COPY --from=build /etc/ca-certificates/ /etc/ca-certificates/
 ## copy across binary
 COPY --from=build /usr/src/app/target/release/canhaveinternet /canhaveinternet
 CMD ["/canhaveinternet"]
