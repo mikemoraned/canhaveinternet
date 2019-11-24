@@ -24,15 +24,17 @@ RUN cargo build --release
 
 # minimise down to what's needed to run
 ## find and store the libraries used by the app
-RUN ldd target/release/canhaveinternet | awk '{ print $3 }' > libs.txt
+RUN ldd target/release/canhaveinternet | grep "=>" | awk '{ print $3 }' > libs.txt
+RUN ldd target/release/canhaveinternet | grep -v "=>" | grep -v "linux-vdso" | awk '{ print $1 }' >> libs.txt
 RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
+RUN mkdir dynamic_libs
+RUN cd dynamic_libs && tar zxvf ../libs.tgz
 
-FROM rust:1.39-buster
+FROM scratch
 ## copy across libraries used
-COPY --from=build /usr/src/app/libs.tgz /libs.tgz
-RUN cd / && tar zxvf libs.tgz
+COPY --from=build /usr/src/app/dynamic_libs/ /
 ## copy across binary
 COPY --from=build /usr/src/app/target/release/canhaveinternet /canhaveinternet
-CMD ["/canhaveinternet"]
+ENTRYPOINT ["/canhaveinternet"]
 
 EXPOSE 8000
