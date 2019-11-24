@@ -1,18 +1,26 @@
-# FROM liuchong/rustup:nightly-musl as build
-# COPY . /root
-# RUN cargo build --release
-
-# FROM scratch
-# COPY --from=build /root/target/x86_64-unknown-linux-musl/release/qrmethis /qrmethis
-# CMD ["/qrmethis"]
-# EXPOSE 8000
-
 FROM rust:1.39-buster as build
 
-WORKDIR /usr/src/myapp
-COPY . .
+# prepare base image with dependencies
+## create shell project
+WORKDIR /usr/src/
+RUN USER=root cargo new --bin app
+WORKDIR /usr/src/app
 
+## copy dependencies
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+
+## build and cache all dependencies
 RUN cargo build --release
 
-CMD ["/usr/src/myapp/target/release/canhaveinternet"]
+# build real app
+## replace src
+RUN rm src/*.rs
+COPY ./src ./src
+
+## build for release, using already compiled dependencies
+RUN touch src/main.rs
+RUN cargo build --release
+
+CMD ["/usr/src/app/target/release/canhaveinternet"]
 EXPOSE 8000
