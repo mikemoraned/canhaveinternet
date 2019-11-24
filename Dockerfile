@@ -30,7 +30,7 @@ RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
 RUN mkdir dynamic_libs
 RUN cd dynamic_libs && tar zxvf ../libs.tgz
 
-FROM scratch
+FROM alpine:3
 ## copy across libraries used
 COPY --from=build /usr/src/app/dynamic_libs/ /
 ## copy across binary
