@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action@v2.8
         with:
           name: houseofmoran/canhaveinternet
           username: ${{ secrets.DOCKER_USERNAME }}
