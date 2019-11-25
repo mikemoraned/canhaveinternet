@@ -9,4 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag canhaveinternet:$(date +%s)
+        run: docker build . --file Dockerfile --tag canhaveinternet:$label
+        env:
+          LABEL: $(git rev-parse --abbrev-ref HEAD),$(date +%s)
