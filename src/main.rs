@@ -1,5 +1,4 @@
 use async_std::future;
-use async_std::io;
 use async_std::task;
 use prometheus::{histogram_opts, register_histogram, Encoder, Histogram, Registry, TextEncoder};
 use std::time::{Duration, SystemTime};
@@ -57,16 +56,16 @@ struct AppState {
     registry: Registry,
 }
 
-async fn dump(cx: tide::Context<AppState>) -> tide::EndpointResult<String> {
+async fn dump(req: tide::Request<AppState>) -> String {
     println!("dump called");
-    let registry = &cx.state().registry;
+    let registry = &req.state().registry;
 
     let mut buffer = vec![];
     let encoder = TextEncoder::new();
     let metric_families = registry.gather();
     encoder.encode(&metric_families, &mut buffer).unwrap();
 
-    Ok(String::from_utf8(buffer).unwrap())
+    String::from_utf8(buffer).unwrap()
 }
 
 fn spawn_check(registry: &Registry) {
@@ -101,18 +100,22 @@ fn spawn_check(registry: &Registry) {
     });
 }
 
-async fn healthcheck(_: tide::Context<AppState>) -> tide::EndpointResult<String> {
-    Ok("hunky dory".into())
+async fn healthcheck(_: tide::Request<AppState>) -> String {
+    "hunky dory".into()
 }
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), std::io::Error> {
     let registry = Registry::new();
 
     spawn_check(&registry);
 
-    let mut app = tide::App::with_state(AppState { registry });
-    app.at("/metrics").get(dump);
-    app.at("/healthcheck/alive").get(healthcheck);
-    app.at("/healthcheck/ready").get(healthcheck);
-    app.serve("0.0.0.0:8000")
+    task::block_on(async {
+        let mut app = tide::Server::with_state(AppState { registry });
+        app.at("/metrics").get(dump);
+        app.at("/healthcheck/alive").get(healthcheck);
+        app.at("/healthcheck/ready").get(healthcheck);
+        app.listen("0.0.0.0:8000").await.unwrap()
+    });
+
+    Ok(())
 }
