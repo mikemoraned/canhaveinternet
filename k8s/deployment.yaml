@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canhaveinternet
+  namespace: canhaveinternet
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: canhaveinternet
+  template:
+    metadata:
+      labels:
+        app: canhaveinternet
+    spec:
+      containers:
+        - name: canhaveinternet
+          image: houseofmoran/canhaveinternet:0.1.1
+          resources:
+            limits:
+              cpu: 0.9
+              memory: 20Mi
+            requests:
+              cpu: 0.1
+              memory: 15Mi
+          ports:
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /healthcheck/alive
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /healthcheck/ready
+              port: 8000
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 60

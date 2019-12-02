@@ -26,9 +26,16 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-      - targets:
-          [
-            "localhost:9090",
-            "host.docker.internal:8000",
-            "Mikes-Mac-mini.lan:8000",
-          ]
+      - targets: ["localhost:9090"]
+
+  - job_name: "home_agent"
+
+    static_configs:
+      - targets: ["host.docker.internal:8000", "Mikes-Mac-mini.lan:8000"]
+
+  - job_name: "external_agent"
+
+    scheme: "https"
+
+    static_configs:
+      - targets: ["canhaveinternet.do.houseofmoran.io"]

@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "canhaveinternet"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-std 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "prometheus 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
