@@ -1,6 +1,6 @@
 [package]
 name = "canhaveinternet"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mike Moran <mike@houseofmoran.com>"]
 edition = "2018"
 
