@@ -101,6 +101,10 @@ fn spawn_check(registry: &Registry) {
     });
 }
 
+async fn healthcheck(_: tide::Context<AppState>) -> tide::EndpointResult<String> {
+    Ok("hunky dory".into())
+}
+
 fn main() -> io::Result<()> {
     let registry = Registry::new();
 
@@ -108,5 +112,7 @@ fn main() -> io::Result<()> {
 
     let mut app = tide::App::with_state(AppState { registry });
     app.at("/metrics").get(dump);
+    app.at("/healthcheck/alive").get(healthcheck);
+    app.at("/healthcheck/ready").get(healthcheck);
     app.serve("0.0.0.0:8000")
 }
