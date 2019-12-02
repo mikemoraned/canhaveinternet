@@ -29,13 +29,13 @@ Add the name of machine you installed it on to `static_configs`/`targets`. You s
 Build:
 
     # (Assumes a working docker login)
-    docker build . --tag houseofmoran/canhaveinternet:0.1.1
-    docker push houseofmoran/canhaveinternet:0.1.1
+    docker build . --tag houseofmoran/canhaveinternet:0.1.2
+    docker push houseofmoran/canhaveinternet:0.1.2
 
 Install:
 
     # (Assumes a cluster with cert-manager and ingress setup)
-    kubectl apply -f namespace.yaml
-    kubectl apply -f deployment.yaml
-    kubectl apply -f service.yaml
-    kubectl apply -f ingress.yaml
+    kubectl apply -f k8s/namespace.yaml
+    kubectl apply -f k8s/deployment.yaml
+    kubectl apply -f k8s/service.yaml
+    kubectl apply -f k8s/ingress.yaml
