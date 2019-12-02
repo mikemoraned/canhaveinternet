@@ -23,3 +23,19 @@ You should see something like:
 Add the name of machine you installed it on to `static_configs`/`targets`. You should then see:
 
     dump called
+
+### Running on Kubernetes
+
+Build:
+
+    # (Assumes a working docker login)
+    docker build . --tag houseofmoran/canhaveinternet:0.1.1
+    docker push houseofmoran/canhaveinternet:0.1.1
+
+Install:
+
+    # (Assumes a cluster with cert-manager and ingress setup)
+    kubectl apply -f namespace.yaml
+    kubectl apply -f deployment.yaml
+    kubectl apply -f service.yaml
+    kubectl apply -f ingress.yaml
