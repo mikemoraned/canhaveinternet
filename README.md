@@ -29,8 +29,8 @@ Add the name of machine you installed it on to `static_configs`/`targets`. You s
 Build:
 
     # (Assumes a working docker login)
-    docker build . --tag houseofmoran/canhaveinternet:0.1.2
-    docker push houseofmoran/canhaveinternet:0.1.2
+    docker build . --tag houseofmoran/canhaveinternet:0.1.4
+    docker push houseofmoran/canhaveinternet:0.1.4
 
 Install:
 
