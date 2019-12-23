@@ -7,7 +7,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "async-std"
-version = "1.3.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "async-task 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -103,12 +103,12 @@ dependencies = [
 
 [[package]]
 name = "canhaveinternet"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
- "async-std 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prometheus 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "surf 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "tide 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tide 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -491,7 +491,7 @@ name = "http-service"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "async-std 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "http 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1069,10 +1069,10 @@ dependencies = [
 
 [[package]]
 name = "tide"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "async-std 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "http 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "http-service 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1431,7 +1431,7 @@ dependencies = [
 
 [metadata]
 "checksum anyhow 1.0.19 (registry+https://github.com/rust-lang/crates.io-index)" = "57114fc2a6cc374bce195d3482057c846e706d252ff3604363449695684d7a0d"
-"checksum async-std 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "94ef4b71b2f56d7f8793c2a353fa0aa254833c55ab611dc6f3e0bd63db487e2d"
+"checksum async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0bf6039b315300e057d198b9d3ab92ee029e31c759b7f1afae538145e6f18a3e"
 "checksum async-task 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "de6bd58f7b9cc49032559422595c81cbfcf04db2f2133592f70af19e258a1ced"
 "checksum autocfg 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "1d49d90015b3c36167a20fe2810c5cd875ad504b39cff3d4eae7977e6b7c1cb2"
 "checksum backtrace 0.3.40 (registry+https://github.com/rust-lang/crates.io-index)" = "924c76597f0d9ca25d762c25a4d369d51267536465dc5064bdf0eb073ed477ea"
@@ -1553,7 +1553,7 @@ dependencies = [
 "checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum surf 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "741a8008f8a833ef16f47df94a30754478fb2c2bf822b9c2e6f7f09203b97ace"
 "checksum syn 1.0.8 (registry+https://github.com/rust-lang/crates.io-index)" = "661641ea2aa15845cddeb97dad000d22070bb5c1fb456b96c1cba883ec691e92"
-"checksum tide 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "07dc99c450fb7057f6357b5e7fd531676426b50d4f6c625c6232630d7353bb0a"
+"checksum tide 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "13c99b1991db81e611a2614cd1b07fec89ae33c5f755e1f8eb70826fb5af0eea"
 "checksum time 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)" = "db8dcfca086c1143c9270ac42a2bbd8a7ee477b78ac8e45b19abfb0cbede4b6f"
 "checksum tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)" = "5a09c0b5bb588872ab2f09afa13ee6e9dac11e10a0ec9e8e3ba39a5a5d530af6"
 "checksum tokio-buf 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8fb220f46c53859a4b7ec083e41dec9778ff0b1851c0942b211edb89e0ccdc46"

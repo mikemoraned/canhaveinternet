@@ -125,11 +125,23 @@ fn main() -> Result<(), std::io::Error> {
 
     spawn_check(&registry);
 
+    // FIXME: have to use a dummy AppState here as otherwise
+    // `.get(healthcheck_app.into_http_service());` down below will
+    // fail because the Service returned is not of same type
+    // as nesting Server
+    let dummy_app_state = AppState {
+        registry: Registry::new(),
+    };
+    let mut healthcheck_app = tide::Server::with_state(dummy_app_state);
+    healthcheck_app.at("/alive").get(healthcheck);
+    healthcheck_app.at("/ready").get(healthcheck);
+
     task::block_on(async {
         let mut app = tide::Server::with_state(AppState { registry });
         app.at("/metrics").get(dump);
-        app.at("/healthcheck/alive").get(healthcheck);
-        app.at("/healthcheck/ready").get(healthcheck);
+        app.at("/healthcheck")
+            .strip_prefix()
+            .get(healthcheck_app.into_http_service());
         app.listen("0.0.0.0:8000").await.unwrap()
     });
 
