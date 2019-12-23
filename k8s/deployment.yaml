@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: canhaveinternet
-          image: houseofmoran/canhaveinternet:0.1.4
+          image: houseofmoran/canhaveinternet:0.1.5
           resources:
             limits:
               cpu: 0.9

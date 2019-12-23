@@ -1,4 +1,4 @@
-FROM rust:1.39-buster as build
+FROM rust:1.40-buster as build
 
 # prepare base image with dependencies
 ## create shell project
@@ -27,7 +27,7 @@ RUN cargo build --release
 RUN ldd target/release/canhaveinternet | awk '{ print $3 }' > libs.txt
 RUN tar zcvf libs.tgz --files-from=libs.txt --dereference
 
-FROM rust:1.39-slim-buster
+FROM rust:1.40-slim-buster
 ## copy across libraries used
 COPY --from=build /usr/src/app/libs.tgz /libs.tgz
 RUN cd / && tar zxvf libs.tgz
