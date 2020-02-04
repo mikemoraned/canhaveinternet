@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 surf = "1.0"
-async-std = "1.4"
+async-std = "1.5"
 prometheus = "0.7"
 tide = { version="0.5", features=["unstable"] }
