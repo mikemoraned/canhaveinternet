@@ -9,5 +9,5 @@ edition = "2018"
 [dependencies]
 surf = "1.0"
 async-std = "1.4"
-prometheus = "0.7"
+prometheus = "0.9"
 tide = { version="0.5", features=["unstable"] }
