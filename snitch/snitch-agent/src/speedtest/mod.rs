@@ -6,8 +6,8 @@ use std::process::Command;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Ping {
-    jitter: f32,
-    latency: f32
+    pub jitter: f64,
+    pub latency: f64
 }
 
 #[derive(Serialize, Deserialize, Debug)]
