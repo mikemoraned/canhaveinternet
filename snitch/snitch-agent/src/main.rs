@@ -5,12 +5,18 @@ mod speedtest {
     use chrono::DateTime;
     use chrono::Utc;
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct Ping {
+        jitter: f32,
+        latency: f32
+    }
 
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct Speedtest {
         #[serde(rename = "type")]
         pub test_type: String,
         pub timestamp: DateTime<Utc>,
+        pub ping: Ping
     }
 }
 
@@ -61,7 +67,7 @@ fn typed_example() -> Result<()> {
     let t: speedtest::Speedtest = serde_json::from_str(data)?;
 
     // Do things just like with any other Rust data structure.
-    println!("Test type {}, for timestamp: {}", t.test_type, t.timestamp);
+    println!("Test type {}, for timestamp: {}, {:?}", t.test_type, t.timestamp, t.ping);
 
     Ok(())
 }
