@@ -19,8 +19,8 @@ pub struct Speedtest {
 }
 
 
-pub fn run_speedtest() -> Result<Speedtest> {
-    let output = Command::new("/opt/homebrew/bin/speedtest")
+pub fn run_speedtest(speedtest_binary : &str) -> Result<Speedtest> {
+    let output = Command::new(speedtest_binary)
         .arg("--format")
         .arg("json-pretty")
         .output()
