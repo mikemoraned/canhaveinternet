@@ -37,6 +37,17 @@ async fn metrics(data: web::Data<AppState>) -> impl Responder {
     HttpResponse::Ok().body(body)
 }
 
+use std::time::Duration;
+use async_std::task;
+async fn periodically_run_speedtest() {
+    loop {
+        println!("Running test");
+        let test: speedtest::Speedtest = speedtest::run_speedtest().unwrap();
+        println!("Test type {}, for timestamp: {}, {:?}", test.test_type, test.timestamp, test.ping);
+        task::sleep(Duration::from_secs(60)).await;
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let mut registry = <Registry>::default();
@@ -44,6 +55,8 @@ async fn main() -> std::io::Result<()> {
     let data = web::Data::new(AppState {
         registry: Mutex::new(registry)
     });
+
+    actix_rt::spawn(periodically_run_speedtest());
 
     HttpServer::new(move|| {
         App::new()
