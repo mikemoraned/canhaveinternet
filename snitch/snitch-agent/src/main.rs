@@ -1,4 +1,5 @@
 use serde_json::Result;
+use std::process::Command;
 
 mod speedtest;
 
@@ -54,5 +55,13 @@ fn typed_example() -> Result<()> {
     Ok(())
 }
 fn main() {
-    typed_example().unwrap();
+    let output = Command::new("/opt/homebrew/bin/speedtest")
+            .arg("--format")
+            .arg("json-pretty")
+            .output()
+            .expect("failed to execute process");
+
+    println!("status: {}", output.status);
+    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
 }
