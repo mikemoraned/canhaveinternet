@@ -62,6 +62,10 @@ fn main() {
             .expect("failed to execute process");
 
     println!("status: {}", output.status);
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("stdout: {}", &stdout);
     println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+    let test: speedtest::Speedtest = serde_json::from_str(&stdout).unwrap();
+    println!("Test type {}, for timestamp: {}, {:?}", test.test_type, test.timestamp, test.ping);
 }
