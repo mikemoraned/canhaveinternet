@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use chrono::DateTime;
 use chrono::Utc;
+use serde_json::Result;
+use std::process::Command;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Ping {
@@ -14,6 +16,22 @@ pub struct Speedtest {
     pub test_type: String,
     pub timestamp: DateTime<Utc>,
     pub ping: Ping
+}
+
+
+pub fn run_speedtest() -> Result<Speedtest> {
+    let output = Command::new("/opt/homebrew/bin/speedtest")
+        .arg("--format")
+        .arg("json-pretty")
+        .output()
+        .expect("failed to execute process");
+
+    println!("status: {}", output.status);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("stdout: {}", &stdout);
+    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+    Ok(serde_json::from_str(&stdout)?)
 }
 
 #[cfg(test)]
