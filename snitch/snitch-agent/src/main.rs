@@ -1,13 +1,17 @@
-use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use chrono::DateTime;
-use chrono::Utc;
 
-#[derive(Serialize, Deserialize)]
-struct Speedtest {
-    #[serde(rename = "type")]
-    test_type: String,
-    timestamp: DateTime<Utc>
+mod speedtest {
+    use serde::{Deserialize, Serialize};
+    use chrono::DateTime;
+    use chrono::Utc;
+
+    #[derive(Serialize, Deserialize)]
+
+    pub struct Speedtest {
+        #[serde(rename = "type")]
+        pub test_type: String,
+        pub timestamp: DateTime<Utc>,
+    }
 }
 
 fn typed_example() -> Result<()> {
@@ -54,7 +58,7 @@ fn typed_example() -> Result<()> {
         }
     }"#;
 
-    let t: Speedtest = serde_json::from_str(data)?;
+    let t: speedtest::Speedtest = serde_json::from_str(data)?;
 
     // Do things just like with any other Rust data structure.
     println!("Test type {}, for timestamp: {}", t.test_type, t.timestamp);
