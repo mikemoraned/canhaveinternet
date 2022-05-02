@@ -19,6 +19,7 @@ async fn periodically_run_speedtest(speedtest_binary: &str, client: &Client) -> 
             DataPoint::builder("speedtest")
                 .tag("test_type", test.test_type)
                 .field("ping_jitter", test.ping.jitter)
+                .field("ping_latency", test.ping.latency)
                 .build()?
             ];
                                                              
