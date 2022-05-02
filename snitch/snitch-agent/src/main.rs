@@ -33,17 +33,26 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
     }
 }
 
+use clap::{Parser};
+
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+struct Cli {
+    speedtest_binary_path: String,
+    agent_name: String
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let cli = Cli::parse();
+
     let host= dotenv::var("INFLUXDB_HOST").unwrap();
     let org = dotenv::var("INFLUXDB_ORG").unwrap();
     let token = dotenv::var("INFLUXDB_TOKEN").unwrap();
     let client = Client::new(host, org, token);
      
-    let speedtest_binary = "/opt/homebrew/bin/speedtest";
-    let agent_name = "agent1";
     task::spawn(async move {
-        periodically_run_speedtest(speedtest_binary, agent_name, &client).await?;
+        periodically_run_speedtest(&cli.speedtest_binary_path, &cli.agent_name, &client).await?;
 
         Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
     }).await?
