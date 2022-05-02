@@ -2,3 +2,4 @@
 **/*.rs.bk
 data/
 snitch/.DS_Store
+snitch/snitch-agent/.env
