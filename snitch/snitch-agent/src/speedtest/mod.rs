@@ -11,13 +11,19 @@ pub struct Ping {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Transfer {
+    pub bandwidth: u32
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Speedtest {
     #[serde(rename = "type")]
     pub test_type: String,
     pub timestamp: DateTime<Utc>,
-    pub ping: Ping
+    pub ping: Ping,
+    pub download: Transfer,
+    pub upload: Transfer
 }
-
 
 pub fn run_speedtest(speedtest_binary : &str) -> Result<Speedtest> {
     let output = Command::new(speedtest_binary)

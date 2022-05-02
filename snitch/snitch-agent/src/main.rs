@@ -12,7 +12,8 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
     loop {
         println!("Running test");
         let test: speedtest::Speedtest = speedtest::run_speedtest(&speedtest_binary).unwrap();
-        println!("Test type {}, for timestamp: {}, {:?}", test.test_type, test.timestamp, test.ping);
+        println!("Test type {}, for timestamp: {}, {:?}, download: {:?}, upload: {:?}", 
+            test.test_type, test.timestamp, test.ping, test.download, test.upload);
         let bucket = "snitch-agent";
 
         let nanos_per_second = 1000000000i64;
@@ -23,6 +24,8 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
                 .tag("test_type", test.test_type)
                 .field("ping_jitter", test.ping.jitter)
                 .field("ping_latency", test.ping.latency)
+                .field("download_bandwidth", test.download.bandwidth as i64)
+                .field("upload_bandwidth", test.upload.bandwidth as i64)
                 .build()?
             ];
                                                              
