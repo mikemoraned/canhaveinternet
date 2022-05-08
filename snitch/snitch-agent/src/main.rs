@@ -1,7 +1,8 @@
 extern crate dotenv;
-use futures::prelude::*;
-use influxdb2::Client;
-use influxdb2::models::DataPoint;
+use influx_db_client::{
+    Client, Point, Points, Precision, points
+};
+use url::Url;
 use std::time::Duration;
 use tokio::{time, task};
 
@@ -14,22 +15,21 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
         let test: speedtest::Speedtest = speedtest::run_speedtest(&speedtest_binary).unwrap();
         println!("Test type {}, for timestamp: {}, {:?}, download: {:?}, upload: {:?}", 
             test.test_type, test.timestamp, test.ping, test.download, test.upload);
-        let bucket = "snitch-agent";
-
+        
         let nanos_per_second = 1000000000i64;
-        let points = vec![
-            DataPoint::builder("speedtest")
-                .timestamp(test.timestamp.timestamp() * nanos_per_second)
-                .tag("agent_name", agent_name)
-                .tag("test_type", test.test_type)
-                .field("ping_jitter", test.ping.jitter)
-                .field("ping_latency", test.ping.latency)
-                .field("download_bandwidth", test.download.bandwidth as i64)
-                .field("upload_bandwidth", test.upload.bandwidth as i64)
-                .build()?
-            ];
+
+        let points = points!(
+            Point::new("speedtest")
+                .add_timestamp(test.timestamp.timestamp() * nanos_per_second)
+                .add_tag("agent_name", agent_name)
+                .add_tag("test_type", test.test_type)
+                .add_field("ping_jitter", test.ping.jitter)
+                .add_field("ping_latency", test.ping.latency)
+                .add_field("download_bandwidth", test.download.bandwidth as i64)
+                .add_field("upload_bandwidth", test.upload.bandwidth as i64)
+        );
                                                              
-        client.write(bucket, stream::iter(points)).await?;
+        client.write_points(points, Some(Precision::Nanoseconds), None).await?;
 
         println!("Waiting ...");
         time::sleep(Duration::from_secs(60)).await;
@@ -50,9 +50,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let cli = Cli::parse();
 
     let host= dotenv::var("INFLUXDB_HOST").unwrap();
-    let org = dotenv::var("INFLUXDB_ORG").unwrap();
-    let token = dotenv::var("INFLUXDB_TOKEN").unwrap();
-    let client = Client::new(host, org, token);
+    let password = dotenv::var("INFLUXDB_PASSWORD").unwrap();
+    let username = "snitch-agent";
+    let database = "snitch-agent";
+    let client = Client::new(Url::parse(&host)?, database).set_authentication(username, &password);
      
     task::spawn(async move {
         periodically_run_speedtest(&cli.speedtest_binary_path, &cli.agent_name, &client).await?;
