@@ -53,7 +53,7 @@ Edit `influxdb.conf` such that the `[HTTP]` section has:
 
 Login as admin:
 
-    'export INFLUX_DB_ADMIN_PASSWORD='<password>'
+    export INFLUX_DB_ADMIN_PASSWORD='<password>'
     influx -username admin -password $INFLUX_DB_ADMIN_PASSWORD
 
 Then:
