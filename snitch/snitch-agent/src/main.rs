@@ -31,8 +31,9 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
                                                              
         client.write_points(points, Some(Precision::Nanoseconds), None).await?;
 
-        println!("Waiting ...");
-        time::sleep(Duration::from_secs(60)).await;
+        let delay = Duration::from_secs(60 * 5);
+        println!("Waiting {:?} ...", delay);
+        time::sleep(delay).await;
     }
 }
 
