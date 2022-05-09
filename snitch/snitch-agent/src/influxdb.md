@@ -64,3 +64,44 @@ Then:
     CREATE USER "snitch-agent" WITH PASSWORD '<snitch-agent-password>';
     GRANT ALL ON "snitch-agent" to "snitch-agent";
     exit
+
+# Grafana setup
+
+Based on https://pimylifeup.com/raspberry-pi-grafana/
+
+    # update all existing software (optional)
+    sudo apt update
+    sudo apt upgrade
+
+    # get key for signing
+    curl https://packages.grafana.com/gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/grafana-archive-keyrings.gpg >/dev/null
+
+    # add the repo
+    echo "deb [signed-by=/usr/share/keyrings/grafana-archive-keyrings.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+
+    # pull down package list based on this new repo
+    sudo apt update
+
+    # install grafana
+    sudo apt install grafana
+
+    # enable start at boot
+    sudo systemctl daemon-reload
+    sudo systemctl enable grafana-server
+
+    # actually start it
+    sudo systemctl start grafana-server
+
+Setup admin:
+
+- go to http://<server ip>:3000/login
+- log in with `admin` username + `admin` password
+- set a new password and save in password manager
+
+## Add dashboard
+
+Based on https://docs.influxdata.com/influxdb/v1.8/tools/grafana/, follow that and the take it from there.
+
+An example query in InfluxQL:
+
+    SELECT mean(download_bandwidth)  * 8 AS download_bandwidth, mean(upload_bandwidth) * 8 AS upload_bandwidth FROM "speedtest" WHERE $timeFilter GROUP BY time($__interval), agent_name fill(null)
