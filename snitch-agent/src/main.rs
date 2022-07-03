@@ -7,6 +7,7 @@ use std::time::Duration;
 use tokio::{time, task};
 
 mod speedtest;
+mod netlify;
 
 async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, client: &Client) 
     -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -37,6 +38,30 @@ async fn periodically_run_speedtest(speedtest_binary: &str, agent_name: &str, cl
     }
 }
 
+async fn periodically_run_netlifytest(agent_name: &str, client: &Client) 
+    -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    loop {
+        println!("Running netlify test");
+        let test: netlify::Netlifytest = netlify::run_netlifytest();
+        println!("Test complete");
+        
+        let nanos_per_second = 1000000000i64;
+
+        let points = points!(
+            Point::new("netlifytest")
+                .add_timestamp(test.timestamp.timestamp() * nanos_per_second)
+                .add_tag("agent_name", agent_name)
+                .add_field("status_code", test.status_code as i64)
+        );
+                                                             
+        client.write_points(points, Some(Precision::Nanoseconds), None).await?;
+
+        let delay = Duration::from_secs(60 * 5);
+        println!("Waiting {:?} ...", delay);
+        time::sleep(delay).await;
+    }
+}
+
 use clap::{Parser};
 
 #[derive(Parser)]
@@ -57,7 +82,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::new(Url::parse(&host)?, database).set_authentication(username, &password);
      
     task::spawn(async move {
-        periodically_run_speedtest(&cli.speedtest_binary_path, &cli.agent_name, &client).await?;
+        // periodically_run_speedtest(&cli.speedtest_binary_path, &cli.agent_name, &client).await?;
+        periodically_run_netlifytest(&cli.agent_name, &client).await?;
 
         Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
     }).await?
