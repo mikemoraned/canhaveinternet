@@ -1,41 +1,45 @@
 # What this is
 
-1. I was getting suspicious about occasional latency from my home network to outside internet and wanted some evidence
-2. I fancied learning some more Rust (`async-std` in particular) and also in setting up and using Prometheus for metrics
+A way of monitoring connectivity to the internet from devices on a local network. Also, a hobby project for me to learn Rust.
 
-## Running Metrics Server
+## History
 
-    docker run -p 9090:9090 -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml -v `pwd`/data:/prometheus prom/prometheus
+### V1
 
-## Running Clients
+Back in 2019, I was getting suspicious about occasional latency from my home network to outside internet and wanted some evidence. So, I created a simple project to try to see if I could "catch it in the act".
 
-    cargo build --release
+The initial setup was a Rust program running on my local network and periodically fetching a remote site on Netlify. This would then be scraped by a Prometheus server.
 
-Then, copy `target/release/canhaveinternet` to the machine you want to run it on, and start it:
+This worked well enough in that it recorded metrics when it was up and running. However, the machines it ran on were often laptops or other machines which went to sleep and stopped recording. Not great for capturing an occasional problem.
 
-    ./canhaveinternet
+# V2 (current)
 
-You should see something like:
+Fast-forward to 2022, and the small matter of COVID means I am now spending substantially more time at home, so now am more impacted when there is a network issue. I also have more computers to look after and a bigger local network, so more sources of problems.
 
-    Server is listening on: http://0.0.0.0:8000
-    status = 200, start = 1573954064.760746s, elapsed = 174.566ms
+I decided InfluxDB was a better fit than Prometheus as the tests I am doing are more event-like and not a continuous stream.
 
-Add the name of machine you installed it on to `static_configs`/`targets`. You should then see:
+I also wanted to take measurements from around the house because the issues experienced could be local.
 
-    dump called
+This leads to this architecture:
 
-### Running on Kubernetes
+```mermaid
+graph LR;
+    Netlify_site[Netlify Target]-->Snitch_Agent_1[Agent 1]
+    Netlify_site-->Snitch_Agent_2[Agent 2]
+    Netlify_site-->Snitch_Agent_N[Agent N]
 
-Build:
+    Speedtest_site[Speedtest Target]-->Snitch_Agent_1
+    Speedtest_site-->Snitch_Agent_2
+    Speedtest_site-->Snitch_Agent_N
 
-    # (Assumes a working docker login)
-    docker build . --tag houseofmoran/canhaveinternet:0.1.5
-    docker push houseofmoran/canhaveinternet:0.1.5
+    Snitch_Agent_1-->InfluxDB
+    Snitch_Agent_2-->InfluxDB
+    Snitch_Agent_N-->InfluxDB
 
-Install:
+    InfluxDB-->Grafana
+```
 
-    # (Assumes a cluster with cert-manager and ingress setup)
-    kubectl apply -f k8s/namespace.yaml
-    kubectl apply -f k8s/deployment.yaml
-    kubectl apply -f k8s/service.yaml
-    kubectl apply -f k8s/ingress.yaml
+- Netlify Target: this is a simple passive website
+- Speedtest Target: this an active member of the <https://www.speedtest.net> network
+- Agent 1 ... N: these run on different devices, periodically fetch from the different Targets, and send events to InfluxDB
+- InfluxDB / Grafana: a standard setup, running together on a single machine
